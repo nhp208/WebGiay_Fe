@@ -1,13 +1,20 @@
+@import "slick-carousel/slick/slick.css";
+@import "slick-carousel/slick/slick-theme.css";
+@import "antd/dist/reset.css";
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+  padding: 0;
 }
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+:root{
+    --primary-color: #b61a1a;
+    --fs-color-primary: #b61a1a;
+    --fs-color-secondary: #c61919;
+    --fs-color-success: #7a9c59;
+    --fs-color-alert: #b20000;
+    --fs-experimental-link-color: #aa1717;
+    --fs-experimental-link-color-hover: #111;
+}
+html{
+  font-size: 62.5%;
 }
