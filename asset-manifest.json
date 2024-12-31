@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/WebGiay_Fe/static/css/main.5e6d14bf.css",
-    "main.js": "/WebGiay_Fe/static/js/main.2fabaa5d.js",
+    "main.js": "/WebGiay_Fe/static/js/main.2583f761.js",
     "static/js/453.6f5d1a44.chunk.js": "/WebGiay_Fe/static/js/453.6f5d1a44.chunk.js",
     "static/media/LoginImg.png": "/WebGiay_Fe/static/media/LoginImg.ebdedceab7e0aa05ac77.png",
     "static/media/Slider2.webp": "/WebGiay_Fe/static/media/Slider2.3a39ae276fffe1e8d9c1.webp",
@@ -19,11 +19,11 @@
     "static/media/slick.woff": "/WebGiay_Fe/static/media/slick.295183786cd8a1389865.woff",
     "index.html": "/WebGiay_Fe/index.html",
     "main.5e6d14bf.css.map": "/WebGiay_Fe/static/css/main.5e6d14bf.css.map",
-    "main.2fabaa5d.js.map": "/WebGiay_Fe/static/js/main.2fabaa5d.js.map",
+    "main.2583f761.js.map": "/WebGiay_Fe/static/js/main.2583f761.js.map",
     "453.6f5d1a44.chunk.js.map": "/WebGiay_Fe/static/js/453.6f5d1a44.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.5e6d14bf.css",
-    "static/js/main.2fabaa5d.js"
+    "static/js/main.2583f761.js"
   ]
 }
