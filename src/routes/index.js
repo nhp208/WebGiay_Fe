@@ -12,7 +12,7 @@ import AboutPage from '../pages/About/AboutPage';
 
 export const routes = [
     {
-        path: "/",
+        path: "/WebGiay_FE",
         page: HomePage,
         isShowHeader:true
     },
