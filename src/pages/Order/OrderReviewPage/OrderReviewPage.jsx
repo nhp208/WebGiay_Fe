@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Typography, Image, Space } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { Table, Typography, Image, Space, InputNumber, message } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
     ShoppingCartOutlined, 
@@ -8,7 +9,7 @@ import {
     CarOutlined,
     CreditCardOutlined 
 } from '@ant-design/icons';
-import { removeOrderProduct, setAmountProduct } from "../../../redux/order/orderSlice";
+import { setAmountProduct } from "../../../redux/order/orderSlice";
 import * as SkuService from "../../../services/SkuService";
 import {
     PageContainer,
@@ -28,25 +29,41 @@ import {
 const { Title, Text } = Typography;
 
 const OrderReviewPage = ({ orderDetails, shippingAddress, paymentMethod, deliveryMethod, onPlaceOrder, onGoBack }) => {
-    const order = useSelector((state) => state.order);
+    const navigate = useNavigate();
     const dispatch = useDispatch();
-    const [cart, setCart] = useState(order);
+    
+    // Lấy thông tin user từ auth state
+    const user = useSelector((state) => state.user);
+    // Lấy giỏ hàng của user hiện tại
+    const order = useSelector((state) => 
+        state.order.orders.find(o => o.userId === user?.id)
+    );
 
+    // Kiểm tra xác thực
     useEffect(() => {
-        setCart(order);
-    }, [order]);
+        if (!user) {
+            message.warning('Vui lòng đăng nhập để xem giỏ hàng');
+            navigate('/login');
+        }
+    }, [user, navigate]);
 
+    // Xử lý thay đổi số lượng
     const onQuantityChange = (value, record) => {
-        dispatch(setAmountProduct({ product: record.product, sku: record.sku, quantity: value }));
-        const updatedOrderItems = cart.orderItems.map((item) =>
-            item.product === record.product ? { ...item, amount: value } : item
-        );
-        setCart((prevCart) => ({ ...prevCart, orderItems: updatedOrderItems }));
+        if (!user) return;
+        
+        dispatch(setAmountProduct({ 
+            userId: user.id,
+            product: record.product, 
+            sku: record.sku, 
+            quantity: value 
+        }));
     };
 
     const [skuData, setSkuData] = useState({});
     useEffect(() => {
         const fetchSkuData = async () => {
+            if (!order || !order.orderItems) return;
+
             const data = {};
             for (let item of order.orderItems) {
                 const res = await SkuService.getSKUById(item.sku);
@@ -56,7 +73,7 @@ const OrderReviewPage = ({ orderDetails, shippingAddress, paymentMethod, deliver
         };
 
         fetchSkuData();
-    }, [order.orderItems]);
+    }, [order?.orderItems]);
 
     const columns = [
         {
@@ -65,7 +82,7 @@ const OrderReviewPage = ({ orderDetails, shippingAddress, paymentMethod, deliver
             key: "name",
             render: (text, record) => (
                 <Space>
-                    <Image width={64} src={cart.orderItems.image} />
+                    <Image width={64} src={record.image} />
                     <Text>{text}</Text>
                 </Space>
             ),
@@ -120,7 +137,7 @@ const OrderReviewPage = ({ orderDetails, shippingAddress, paymentMethod, deliver
         <PageContainer>
             <Title level={2}>Xem Lại Đơn Hàng</Title>
             <StyledTable
-                dataSource={orderDetails.orderItems}
+                dataSource={orderDetails?.orderItems || []}
                 columns={columns}
                 rowKey="sku"
                 pagination={false}

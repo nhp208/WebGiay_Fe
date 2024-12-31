@@ -51,6 +51,7 @@ function MultipleItemsComponent({products=[]}) {
       }
     ]
   };
+  console.log(products);
   return (
     
     <div className="slider-container" 
@@ -61,24 +62,22 @@ function MultipleItemsComponent({products=[]}) {
           }}>
         
       <Slider {...settings}>
-        {products.map((product)=>{
-            return(
-              <WrapperItem>
+        {products.map((product) => {
+            return (
+              <WrapperItem key={product._id}>
                 <CardComponent 
-                key={product._id} 
                 countInStock={product.countInStock} 
                 description={product.description} 
                 image={product.image} 
                 name={product.name}
                 price={product.price}
                 type={product.type}
+                discount={product.discount}
+                NumberProductsSold={product.NumberProductsSold}
                 id={product._id} />
-                
-
               </WrapperItem>
             )
         })}
-        
       </Slider>
     </div>
   );

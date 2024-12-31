@@ -3,6 +3,8 @@ import counterReducer from './counter/counterSlice'
 import userReducer from './user/userSlice'
 import productReducer from './product/productSlice'
 import orderReducer from './order/orderSlice'
+import authReducer from './auth/authSlice'
+import { cartMiddleware } from './middleware/cartMiddleware'
 import {
   persistStore,
   persistReducer,
@@ -19,12 +21,14 @@ const persistConfig = {
   key: 'root',
   version: 1,
   storage,
+  whitelist: ['user', 'order', 'auth']
 }
 const rootReducer=combineReducers({
   counter: counterReducer,
   user:userReducer,
   product:productReducer,
   order:orderReducer,
+  auth: authReducer,
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 export const store = configureStore({
@@ -34,6 +38,6 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }),
+    }).concat(cartMiddleware),
 })
 export let persistor = persistStore(store)

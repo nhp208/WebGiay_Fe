@@ -3,12 +3,20 @@ import styled from 'styled-components';
 import { Button } from "antd";
 import "../../index.css";
 export const WrapperHeader = styled(Row)`
-    
     height: 91px;
     margin: 0 72px;
     display:flex;
     justify-content:space-around;
     align-items:center;
+`
+export const fixedWrapper= styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* Đảm bảo header nằm trên các phần tử khác */
+  background-color: white; /* Màu nền để tránh bị trong suốt */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Tạo hiệu ứng nổi */
 `
 export const ButtonPrimary = styled(Button)`
     margin-left:24px;

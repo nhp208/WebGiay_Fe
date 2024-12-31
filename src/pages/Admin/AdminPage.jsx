@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import AdminUserComponent from '../../components/AdminUser/AdminUserComponent';
 import AdminProductComponent from '../../components/AdminProduct/AdminProductComponent';
 import AdminOrderComponent from '../../components/AdminOrder/AdminOrderComponent.jsx'; // Import component mới
+import AdminVariationComponent from '../../components/AdminVariation/AdminVariationComponent.jsx';
 
 // Cấu hình các mục trong menu
 const items = [
@@ -25,6 +26,11 @@ const items = [
     key: 'order',
     icon: <ShoppingCartOutlined />,
     label: 'Đơn Hàng',
+  },
+  {
+    key: 'variation',
+    icon: <SettingOutlined />,
+    label: 'Biến thể',
   },
   {
     key: 'logout',
@@ -62,6 +68,8 @@ function AdminPage() {
         return <AdminProductComponent />;
       case 'order':
         return <AdminOrderComponent />; // Hiển thị AdminOrderComponent khi chọn Đơn Hàng
+      case 'variation':
+        return <AdminVariationComponent />;
       case 'logout':
         navigate('/');
         break;

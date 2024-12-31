@@ -18,15 +18,44 @@ import * as ProductService from '../../services/ProductService'
 import { useQuery } from '@tanstack/react-query'
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent'
 function HomePage(){
-  const fetchProductAll= async()=>{
-    const res=await ProductService.getAllProduct(); 
+  const fetchNewestProducts = async () => {
+    const res = await ProductService.getAllProduct({
+      limit: 6,
+      sort: 'createdAt',
+      order: 'desc'
+    }); 
     return res;
   }
-  const {isLoading,data:products}=useQuery({
-    queryKey:['products'],
-    queryFn:fetchProductAll,
+
+  const fetchBestDiscountProducts = async () => {
+    const res = await ProductService.getAllProduct({
+      limit: 6,
+      sort: 'discount',
+      order: 'desc'
+    }); 
+    return res;
+  }
+
+  const { data: newestProducts } = useQuery({
+    queryKey: ['newestProducts'],
+    queryFn: fetchNewestProducts,
     retry: 3,
-    retryDelay:1000})
+    retryDelay: 1000,
+    onSuccess: (data) => {
+        console.log('Newest Products:', data);
+    }
+  })
+
+  const { data: bestDiscountProducts } = useQuery({
+    queryKey: ['bestDiscountProducts'],
+    queryFn: fetchBestDiscountProducts,
+    retry: 3,
+    retryDelay: 1000,
+    onSuccess: (data) => {
+        console.log('Best Discount Products:', data);
+    }
+  })
+
   return (
     <div style={{
       padding: '0 clamp(16px, 5vw, 120px)',
@@ -60,8 +89,8 @@ function HomePage(){
               <ImageMainProduct width={300} height={400} src={banner1} preview={false}/>
             </BannerDot>
           </Col>
-          <Col span={16} >
-            <MultipleItemsComponent products={products?.data} />
+          <Col span={16}>
+            <MultipleItemsComponent key={newestProducts} products={newestProducts?.data} />
           </Col>
         </Row>
       </div>
@@ -78,8 +107,8 @@ function HomePage(){
               <ImageMainProduct width={300} height={400} src={banner2} preview={false}/>
             </BannerDot>
           </Col>
-          <Col span={16} >
-            <MultipleItemsComponent products={products?.data} />
+          <Col span={16}>
+            <MultipleItemsComponent key={bestDiscountProducts} products={bestDiscountProducts?.data} />
           </Col>
         </Row>
       </div>

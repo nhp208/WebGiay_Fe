@@ -37,11 +37,17 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { addOrderProduct } from "../../redux/order/orderSlice";
+import { addOrderProduct, addToCart } from "../../redux/order/orderSlice";
 import { ProductContainer, ImageContainer, ThumbnailContainer, ProductInfo, ServicesContainer } from "./style";
 
 function ProductDetailComponent({ ProductID }) {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const location = useLocation();
+  
+  // Cập nhật cách lấy thông tin user
+  const user = useSelector((state) => state.user);
+  
   const fetchGetDetailsProduct = async () => {
     const res = await ProductService.getDetailsProduct(ProductID);
     // console.log("Pres", res.data);
@@ -147,35 +153,39 @@ function ProductDetailComponent({ ProductID }) {
   const handleQuantityChange = (value) => {
     setQuantity(value);
   };
-  const dispatch=useDispatch();
-  const user = useSelector((state) => state?.user);
-  const location=useLocation();
+
   const handleAddToCart = () => {
-    if(!user?.id){
-      navigate('/sign-in',{state: location?.pathname})
-    }else{
-      // name : {type:String,required:true,unique:true},
-      //       amount:{type:Number,required:true},
-      //       image: {type:String,required:true},
-      //       price : {type:Number,default:false,required:true},
-      //       sku:{
-      //           type: mongoose.Schema.Types.ObjectId,
-      //           ref:'SKU',
-      //           required:true,
-      //       }
-      dispatch(addOrderProduct({
-        orderItem:{
-          name:productDetails?.name,
-          amount:quantity,
-          image:productDetails?.image,
-          price:productDetails?.price,
-          discount:productDetails?.discount,
-          sku:sku?._id,
-          product:productDetails?._id,
-        }
-      }))
-      message.success(` Thêm ${productDetails?.name} vào giỏ hàng thành công`)
+    if (!user) {
+      message.warning('Vui lòng đăng nhập để thêm vào giỏ hàng');
+      navigate('/sign-in', { state: location?.pathname })
+      return;
     }
+
+    // Kiểm tra biến thể
+    if (productDetails?.variations?.length > 0 && !sku?._id) {
+      message.error('Vui lòng chọn đầy đủ các biến thể sản phẩm')
+      return;
+    }
+
+    // Tính giá sau khi giảm giá
+    const discountedPrice = productDetails.price * (1 - productDetails.discount / 100);
+    // Dispatch action với thông tin user
+    dispatch(addToCart({
+      userId: user?.id,
+      product: {
+        name: productDetails?.name,
+        amount: quantity,
+        image: productDetails?.image,
+        price: discountedPrice,
+        originalPrice: productDetails?.price,
+        discount: productDetails?.discount,
+        sku: sku?._id,
+        product: productDetails?._id,
+        countInStock: sku?.skuStock || productDetails?.countInStock,
+      }
+    }));
+
+    message.success(`Thêm ${productDetails?.name} vào giỏ hàng thành công`);
   };
 
   return (
@@ -188,7 +198,7 @@ function ProductDetailComponent({ ProductID }) {
           alt={productDetails?.name}
           preview={false}
         />
-        <ThumbnailContainer>
+        {/* <ThumbnailContainer>
           {[...Array(6)].map((_, index) => (
             <WrapperStyleColImage key={index}>
               <WrapperStyleImageSmall
@@ -197,7 +207,7 @@ function ProductDetailComponent({ ProductID }) {
               />
             </WrapperStyleColImage>
           ))}
-        </ThumbnailContainer>
+        </ThumbnailContainer> */}
       </ImageContainer>
 
       <ProductInfo span={14}>

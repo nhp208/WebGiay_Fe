@@ -1,16 +1,29 @@
 import styled from "styled-components";
 export const WrapperFooter = styled.div`
+    background-color: #333333;
+    padding: 20px 0;
     width: 100%;
-    background-color:#000;\
+    
+    @media (max-width: 768px) {
+        padding: 20px 16px;
+    }
 `
 export const ListChild=styled.li`
-    font-size:14px;
-    border-bottom: 1px solid #fff;
-    padding: 0 0 8px 0;
-    margin:16px 4px;
-    color:#ccc;
     list-style: none;
-    &:hover{
-        opacity:0.7;
+    padding: 8px 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #e0e0e0;
+    
+    &:hover {
+        color: #40a9ff;
+        transform: translateX(5px);
+    }
+
+    .anticon {
+        font-size: 18px;
     }
 `

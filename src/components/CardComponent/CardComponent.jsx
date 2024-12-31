@@ -14,7 +14,7 @@ import {
 } from './style';
 
 function CardComponent(props) {
-  const { countInStock, image, name, price, discount, NumberProductsSold, id } = props;
+  const { image, name, price, discount, NumberProductsSold, id } = props;
   const navigate = useNavigate();
 
   const formatCurrency = (amount) => {
@@ -37,11 +37,6 @@ function CardComponent(props) {
 
       <ProductInfo>
         <SoldCount>Đã bán: {NumberProductsSold}</SoldCount>
-        {countInStock > 0 ? (
-          <span>Còn hàng: {countInStock}</span>
-        ) : (
-          <span style={{ color: '#ff4d4f' }}>Hết hàng</span>
-        )}
       </ProductInfo>
 
       <WrapperPriceContainer>

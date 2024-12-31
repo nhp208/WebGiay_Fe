@@ -8,6 +8,7 @@ import ProductDetailPage from "../pages/ProductDetailPage/ProductDetailPage";
 import ProfilePage from "../pages/Profile/ProfilePage";
 import SignInPage from "../pages/SignInPage/SignInPage";
 import SignUpPage from "../pages/SignUpPage/SignUpPage";
+import AboutPage from '../pages/About/AboutPage';
 
 export const routes = [
     {
@@ -68,6 +69,12 @@ export const routes = [
         page: AdminPage,
         isShowHeader:false,
         isPrivate:true,
+
+    },
+    {
+        path: '/about',
+        page: AboutPage,
+        isShowHeader:true,
 
     },
     {

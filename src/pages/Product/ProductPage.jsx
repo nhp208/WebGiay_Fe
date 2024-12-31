@@ -13,7 +13,7 @@ const ProductPage = () => {
    // Phân trang
    const [paginate, setPaginate] = useState({
     page: 1, // Bắt đầu từ 0 để khớp với backend
-    limit: 12,
+    limit: 9,
     total: 0
   });
 
@@ -22,7 +22,7 @@ const ProductPage = () => {
     type: '',
     brand: '',
     color: '',
-    priceRange: [0, 10000000]
+    priceRange: [0, 100000000],
   });
 
   const searchProduct = useSelector((state) => state?.product?.search);
@@ -42,8 +42,10 @@ const ProductPage = () => {
         ...(currentFilters.priceRange && {
           minPrice: currentFilters.priceRange[0],
           maxPrice: currentFilters.priceRange[1]
-        })
+        }),
       };
+
+      console.log('Query params:', params); // Thêm log để debug
 
       const res = await ProductService.getAllProduct(params);
       if (res?.status === 'OK') {

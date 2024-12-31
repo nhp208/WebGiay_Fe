@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Button, Input } from 'antd';
 import { WrapperSelect } from './style';
+import SelectedVariationsList from './SelectedVariationList';
 
-const VariationSelector = ({ variations, onAddVariation, setVariations }) => {
+const VariationSelector = ({ variations, onAddVariation, setVariations, selectedVariations, setSelectedVariations }) => {
     const [newVariation, setNewVariation] = useState({ Type: '', options: [{ value: '' }] });
 
     const handleAddOption = () => {
@@ -19,6 +20,13 @@ const VariationSelector = ({ variations, onAddVariation, setVariations }) => {
         } catch (error) {
             console.error('Lỗi khi tạo variation:', error);
         }
+    };
+
+    const handleRemoveVariation = (index) => {
+        if (!selectedVariations || !setSelectedVariations) return;
+        const newSelectedVariations = [...selectedVariations];
+        newSelectedVariations.splice(index, 1);
+        setSelectedVariations(newSelectedVariations);
     };
 
     return (
@@ -61,6 +69,11 @@ const VariationSelector = ({ variations, onAddVariation, setVariations }) => {
                 <Button style={{marginRight:'4px'}} onClick={handleAddOption}>Thêm Option</Button >
                 <Button type='primary' style={{marginLeft:'12px'}}onClick={handleSaveNewVariation}>Lưu Variation Mới</Button >
             </div>
+            <SelectedVariationsList 
+                selectedVariations={selectedVariations} 
+                newSelect={false} 
+                onRemoveVariation={handleRemoveVariation}
+            />
         </div>
     );
 };

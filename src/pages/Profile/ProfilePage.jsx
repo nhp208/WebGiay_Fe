@@ -87,26 +87,23 @@ function ProfilePage() {
   
   return (
     <Fragment>
-      <div style={{ width: "1270px", margin: "0 auto", height: "500px" }}>
+      <div style={{ 
+        width: "1270px", 
+        margin: "0 auto",
+        minHeight: "500px",
+        paddingBottom: "40px"
+      }}>
         <WrapperHeading>Thông tin người dùng</WrapperHeading>
         <LoadingComponent isLoading={isPending}>
           <WrapperContentProfile>
             <WrapperInput>
-              <WrapperLabel htmlFor="name">Name</WrapperLabel>
+              <WrapperLabel htmlFor="name">Họ Tên</WrapperLabel>
               <InputForm id="name" value={name} onChange={handleOnChangeName} />
             
             </WrapperInput>
-            <WrapperInput>
-              <WrapperLabel htmlFor="email">Email</WrapperLabel>
-              <InputForm
-                id="email"
-                value={email}
-                onChange={handleOnChangeEmail}
-              />
             
-            </WrapperInput>
             <WrapperInput>
-              <WrapperLabel htmlFor="phone">Phone</WrapperLabel>
+              <WrapperLabel htmlFor="phone">Số điện thoại</WrapperLabel>
               <InputForm
                 id="phone"
                 value={phone}
@@ -115,7 +112,7 @@ function ProfilePage() {
             
             </WrapperInput>
             <WrapperInput>
-              <WrapperLabel htmlFor="address">Address</WrapperLabel>
+              <WrapperLabel htmlFor="address">Địa chỉ</WrapperLabel>
               <InputForm
                 id="address"
                 value={address}
@@ -124,7 +121,7 @@ function ProfilePage() {
             
             </WrapperInput>
             <WrapperInput>
-              <WrapperLabel htmlFor="avatar">Avatar</WrapperLabel>
+              <WrapperLabel htmlFor="avatar">Ảnh đại diện</WrapperLabel>
               <WrapperUploadFile maxCount={1} onChange={handleOnChangeAvatar}>
                 <Button icon={<UploadOutlined />}>Select File</Button>
               </WrapperUploadFile>

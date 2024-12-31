@@ -121,12 +121,30 @@ export const searchProducts = async (params) => {
 };
 
 export const getAllProduct = async (params) => {
-  try {
-    const queryString = new URLSearchParams(params).toString();
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/product/get-all?${queryString}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error getting products:', error);
-    throw error;
+  // Xử lý params.variations nếu tồn tại
+  if (params.variations) {
+    try {
+      // Đảm bảo variations là một object hợp lệ
+      const variationsObj = JSON.parse(params.variations);
+      params.variations = variationsObj;
+    } catch (error) {
+      console.error('Error parsing variations:', error);
+      delete params.variations;
+    }
   }
+
+  const query = new URLSearchParams();
+  Object.keys(params).forEach(key => {
+    if (params[key] !== undefined && params[key] !== '') {
+      if (key === 'variations') {
+        query.append(key, JSON.stringify(params[key]));
+      } else {
+        query.append(key, params[key]);
+      }
+    }
+  });
+
+  const res = await axios.get(`${process.env.REACT_APP_API_URL}/product/get-all?${query.toString()}`);
+  return res.data;
 };
+

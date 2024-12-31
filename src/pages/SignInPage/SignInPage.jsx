@@ -12,6 +12,8 @@ import LoadingComponent from '../../components/LoadingComponent/LoadingComponent
 import { jwtDecode } from "jwt-decode";
 import { useDispatch } from 'react-redux'
 import {updateUser} from '../../redux/user/userSlice'
+import { loginSuccess } from '../../redux/auth/authSlice';
+
 function SignInPage() {
   const [isShowPw,setIsShowPw]=useState(false)
   const [pw,setPw]=useState('')
@@ -46,6 +48,7 @@ function SignInPage() {
         const decode=jwtDecode(data?.access_Token)
         if(decode?.id){
           handleGetDetailsUser(decode?.id,data?.access_Token)
+          dispatch(loginSuccess(data?.access_Token))
         }
       }
       console.log('location',location)
@@ -56,7 +59,7 @@ function SignInPage() {
       }
     }
     
-  })
+  }, [data, location, navigate, dispatch])
   const handleGetDetailsUser = async (id,token)=>{
     const res =await UserService.getDetailsUser(id,token)
     dispatch(updateUser({...res?.data,access_Token: token}))

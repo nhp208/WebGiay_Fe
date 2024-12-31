@@ -54,10 +54,28 @@ const OrderDetailModal = ({ order, visible, onClose, admin, handleUpdate }) => {
       render: (price) => `${price.toLocaleString()}₫`,
     },
     {
-      title: "Thành tiền",
-      key: "total",
-      render: (text, record) =>
-        `${(record.amount * record.price).toLocaleString()}₫`,
+      title: "Giảm giá",
+      dataIndex: "discount",
+      key: "discount",
+      render: (discount) => `${discount}%`,
+    },
+    {
+      title: "Số tiền giảm",
+      key: "discountAmount",
+      render: (text, record) => {
+        const originalPrice = record.amount * record.price;
+        const discountAmount = originalPrice * (record.discount / 100);
+        return `-${discountAmount.toLocaleString()}₫`;
+      },
+    },
+    {
+      title: "Thành tiền sau giảm",
+      key: "finalPrice", 
+      render: (text, record) => {
+        const originalPrice = record.amount * record.price;
+        const finalPrice = originalPrice * (1 - record.discount / 100);
+        return `${finalPrice.toLocaleString()}₫`;
+      },
     },
   ];
 
@@ -104,8 +122,11 @@ const OrderDetailModal = ({ order, visible, onClose, admin, handleUpdate }) => {
             >
               <Select.Option value="chờ xác nhận">Chờ xác nhận</Select.Option>
               <Select.Option value="đang xử lý">Đang xử lý</Select.Option>
+              <Select.Option value="đang xử lý">Đang giao hàng</Select.Option>
               <Select.Option value="đã giao">Đã giao</Select.Option>
+              <Select.Option value="đã hoàn thành">Đã hoàn thành</Select.Option>
               <Select.Option value="hủy">Hủy</Select.Option>
+
             </Select>
           ) : (
             <>

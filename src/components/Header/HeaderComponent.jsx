@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Badge, Grid, Popover } from "antd"
 import { Col, Row,Input, Space } from 'antd';
-import { Button, ButtonPrimary, Logan, WrapperHeader, WrapperSlogan,SocialIcons, Logo, WrapperNavbar, NavbarLink, WrapperConttentPopup, WrapperUser } from './style';
+import { Button, fixedWrapper, Logan, WrapperHeader, WrapperSlogan,SocialIcons, Logo, WrapperNavbar, NavbarLink, WrapperConttentPopup, WrapperUser } from './style';
 import {
   ShoppingCartOutlined,
   FacebookOutlined, 
@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { resetUser } from '../../redux/user/userSlice';
 import { searchProduct } from '../../redux/product/productSlice';
 import LoadingComponent from '../LoadingComponent/LoadingComponent';
+import { logoutUser } from '../../redux/auth/authSlice';
 export function HeaderComponent() {
   const navigate = useNavigate()
   const handleNavigateLogin=()=>{
@@ -36,6 +37,8 @@ export function HeaderComponent() {
     setLoading(true);
     dispatch(resetUser(user));
     setLoading(false);
+    dispatch(logoutUser());
+    navigate('/sign-in')
   }
   console.log('user',user)
 
@@ -65,9 +68,20 @@ export function HeaderComponent() {
     dispatch(searchProduct(search))
   }
   //Order
-  const order=useSelector((state)=>state.order)
+  const order = useSelector((state) => {
+    return state.order.orders?.find(order => order.userId === user?.id);
+  });
+
+  // Hàm tính tổng số lượng sản phẩm trong giỏ hàng
+  const getTotalItems = () => {
+    if (!order?.orderItems?.length) return 0;
+    return order.orderItems.reduce((total, item) => {
+      return total + (item.amount || 0)
+    }, 0)
+  }
+
   return (
-    <div style={{}}>
+    <fixedWrapper>
       <WrapperSlogan>
         <Logan>
         "HẺM SNEAKER - TỰ TIN TỪNG BƯỚC, PHONG CÁCH TỪNG GIÂY"
@@ -124,7 +138,7 @@ export function HeaderComponent() {
             </LoadingComponent>
   
 
-            <Badge style={{marginRight:0}} count={user?.email ? order?.orderItems?.length : 0}>
+            <Badge style={{marginRight:0}} count={user?.email ? getTotalItems() : 0}>
               <ButtonComponent 
                 size='large' 
                 textButton={'Giỏ hàng'} 
@@ -137,10 +151,10 @@ export function HeaderComponent() {
       </WrapperHeader>
       <WrapperNavbar>   
             <NavbarLink name={'Trang chủ'} href='/'>Trang chủ</NavbarLink>
-            <NavbarLink name={'Giới thiệu'}>Giới thiệu</NavbarLink>
+            <NavbarLink name={'Giới thiệu'} href='/about'>Giới thiệu</NavbarLink>
             <NavbarLink name={'Sản phẩm'} href='/product'>Sản phẩm</NavbarLink>
       </WrapperNavbar>
-    </div>
+    </fixedWrapper>
   )
 }
 

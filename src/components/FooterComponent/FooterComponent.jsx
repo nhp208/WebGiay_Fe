@@ -7,35 +7,92 @@ import ButtonComponent from '../ButtonComponent/ButtonComponent';
 import { FacebookOutlined, InstagramOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons'
 
 const style = {
-    // background: '#0092ff',
-    color:'#fff',
-    padding: '8px 0',
+    color: '#e0e0e0',
+    padding: '20px 0',
     display: 'flex',
-    justifyContent:'center',
-    flexDirection:'column',
-    alignItems:'center'
+    justifyContent: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
 };
 function FooterComponent() {
   return (
     <WrapperFooter>
-        <Divider orientation="left"></Divider>
-        <Row style={{margin:'0 120px'}} gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+        <Divider style={{ margin: '40px 0' }} />
+        <Row style={{
+            margin: '0 auto',
+            maxWidth: '1200px',
+            padding: '0 20px',
+            paddingBottom: '40px'
+        }} gutter={[48, 24]}>
             <Col className="gutter-row" span={6}>
                 <div style={style}>
-                    <Logo style={{background:'#fff',width:'240px',height:'240px'}} src={Logo_img}/>
-                    <h3 style={{margin:'8px 0'}}>HẺM SNEAKER - TỰ TIN TỪNG BƯỚC, PHONG CÁCH TỪNG GIÂY!</h3>
-                    <span style={{margin:'8px 0'}}>Hẻm Sneaker là thương hiệu giày sneaker chuyên cung cấp các sản phẩm giày chất lượng, đa dạng mẫu mã và kiểu dáng thời trang phù hợp với sinh viên, giá cả ưu đãi.</span>
-                    <ButtonComponent textButton={'XEM THÊM'}  />
-                </div>.
+                    <Logo style={{
+                        background: '#fff',
+                        width: '200px',
+                        height: '200px',
+                        borderRadius: '10px',
+                        marginBottom: '16px'
+                    }} src={Logo_img}/>
+                    <h3 style={{
+                        margin: '12px 0',
+                        fontSize: '18px',
+                        fontWeight: 'bold',
+                        color: '#ffffff'
+                    }}>HẺM SNEAKER - TỰ TIN TỪNG BƯỚC, PHONG CÁCH TỪNG GIÂY!</h3>
+                    <span style={{
+                        margin: '12px 0',
+                        lineHeight: '1.6',
+                        opacity: '0.9'
+                    }}>Hẻm Sneaker là thương hiệu giày sneaker chuyên cung cấp các sản phẩm giày chất lượng, đa dạng mẫu mã và kiểu dáng thời trang phù hợp với sinh viên, giá cả ưu đãi.</span>
+                    <ButtonComponent 
+                        textButton={'XEM THÊM'}
+                        styleButton={{
+                            marginTop: '16px',
+                            borderRadius: '4px'
+                        }}
+                    />
+                </div>
             </Col>
             <Col className="gutter-row" span={6} style={{padding:'0'}}>
                 <div style={style}>
-                    <ul>
-                        <h3>CHÍNH SÁCH KHÁCH HÀNG</h3>
-                        <ListChild>Chính sách bảo hành</ListChild>
-                        <ListChild>Hướng dẫn mua hàng</ListChild>
-                        <ListChild>Quy định đổi trả</ListChild>
-                        <ListChild>Vận chuyển</ListChild>
+                    <ul style={{ width: '100%' }}>
+                        <h3 style={{
+                            fontSize: '18px',
+                            fontWeight: 'bold',
+                            marginBottom: '20px'
+                        }}>CHÍNH SÁCH KHÁCH HÀNG</h3>
+                        <ListChild style={{
+                            padding: '8px 0',
+                            transition: 'all 0.3s ease',
+                            cursor: 'pointer',
+                            '&:hover': {
+                                color: '#1890ff'
+                            }
+                        }}>Chính sách bảo hành</ListChild>
+                        <ListChild style={{
+                            padding: '8px 0',
+                            transition: 'all 0.3s ease',
+                            cursor: 'pointer',
+                            '&:hover': {
+                                color: '#1890ff'
+                            }
+                        }}>Hướng dẫn mua hàng</ListChild>
+                        <ListChild style={{
+                            padding: '8px 0',
+                            transition: 'all 0.3s ease',
+                            cursor: 'pointer',
+                            '&:hover': {
+                                color: '#1890ff'
+                            }
+                        }}>Quy định đổi trả</ListChild>
+                        <ListChild style={{
+                            padding: '8px 0',
+                            transition: 'all 0.3s ease',
+                            cursor: 'pointer',
+                            '&:hover': {
+                                color: '#1890ff'
+                            }
+                        }}>Vận chuyển</ListChild>
                     </ul>
                 </div>
             </Col>

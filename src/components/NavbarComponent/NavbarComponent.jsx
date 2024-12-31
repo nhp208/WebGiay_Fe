@@ -3,22 +3,26 @@ import { WrapperLabelText, WrapperContent, PriceRangeContainer, PriceDisplay, Pr
 import { AutoComplete, Input, Select, Slider, Space } from "antd";
 import ButtonComponent from '../ButtonComponent/ButtonComponent';
 import * as ProductService from "../../services/ProductService";
+import * as VariationService from "../../services/VariationService";
 import { debounce } from 'lodash';
 import styled from 'styled-components';
 
 function NavbarComponent({ onSearch, initialFilters }) {
-  // States for filters với giá trị mặc định từ initialFilters
+  // Cập nhật state filters, bỏ color
   const [filters, setFilters] = useState({
     type: initialFilters?.type || '',
     brand: initialFilters?.brand || '',
-    color: initialFilters?.color || '',
-    priceRange: initialFilters?.priceRange || [0, 10000000],
+    priceRange: initialFilters?.priceRange || [0, 100000000],
   });
 
   // Cập nhật filters khi initialFilters thay đổi
   useEffect(() => {
     if (initialFilters) {
-      setFilters(initialFilters);
+      setFilters({
+        type: initialFilters.type || '',
+        brand: initialFilters.brand || '',
+        priceRange: initialFilters.priceRange || [0, 100000000],
+      });
       setBrandInput(initialFilters.brand || '');
     }
   }, [initialFilters]);
@@ -88,12 +92,6 @@ function NavbarComponent({ onSearch, initialFilters }) {
     onSearch(newFilters); // Auto-search khi chọn brand
   };
 
-  const handleColorChange = (value) => {
-    const newFilters = { ...filters, color: value };
-    setFilters(newFilters);
-    onSearch(newFilters); // Auto-search khi chọn màu
-  };
-
   // Tách state riêng cho giá trị hiển thị của slider
   const [sliderValue, setSliderValue] = useState(filters.priceRange);
 
@@ -129,62 +127,11 @@ function NavbarComponent({ onSearch, initialFilters }) {
     const defaultFilters = {
       type: '',
       brand: '',
-      color: '',
-      priceRange: [0, 10000000],
+      priceRange: [0, 100000000],
     };
     setFilters(defaultFilters);
     setBrandInput('');
     onSearch(defaultFilters);
-  };
-
-  // Thêm state cho tìm kiếm màu
-  const [colorSearchText, setColorSearchText] = useState('');
-  const [filteredColors, setFilteredColors] = useState([]);
-
-  // Danh sách màu sắc phổ biến cho giày
-  const colorOptions = [
-    { value: 'black', label: 'Đen', color: '#000000', keywords: ['đen', 'black', 'den'] },
-    { value: 'white', label: 'Trắng', color: '#FFFFFF', keywords: ['trang', 'trắng', 'white'] },
-    { value: 'red', label: 'Đỏ', color: '#FF0000', keywords: ['đỏ', 'do', 'red'] },
-    { value: 'blue', label: 'Xanh dương', color: '#0000FF', keywords: ['xanh duong', 'xanh dương', 'blue'] },
-    { value: 'navy', label: 'Xanh navy', color: '#000080', keywords: ['xanh navy', 'navy', 'xanh đậm'] },
-    { value: 'grey', label: 'Xám', color: '#808080', keywords: ['xám', 'xam', 'grey', 'gray'] },
-    { value: 'brown', label: 'Nâu', color: '#964B00', keywords: ['nâu', 'nau', 'brown'] },
-    { value: 'beige', label: 'Be', color: '#F5F5DC', keywords: ['be', 'beige', 'kem nhạt'] },
-    { value: 'cream', label: 'Kem', color: '#FFFDD0', keywords: ['kem', 'cream', 'be đậm'] },
-    { value: 'pink', label: 'Hồng', color: '#FFC0CB', keywords: ['hồng', 'hong', 'pink'] },
-    { value: 'purple', label: 'Tím', color: '#800080', keywords: ['tím', 'tim', 'purple'] },
-    { value: 'green', label: 'Xanh lá', color: '#008000', keywords: ['xanh lá', 'xanh la', 'green'] },
-    { value: 'orange', label: 'Cam', color: '#FFA500', keywords: ['cam', 'orange'] },
-    { value: 'yellow', label: 'Vàng', color: '#FFFF00', keywords: ['vàng', 'vang', 'yellow'] },
-    { value: 'silver', label: 'Bạc', color: '#C0C0C0', keywords: ['bạc', 'bac', 'silver'] },
-    { value: 'gold', label: 'Vàng gold', color: '#FFD700', keywords: ['vàng Gold', 'gold'] },
-    { value: 'multicolor', label: 'Nhiều màu', color: 'linear-gradient(45deg, #FF0000, #00FF00, #0000FF)', 
-      keywords: ['nhiều màu', 'nhieu mau', 'multicolor', 'multi'] }
-  ];
-
-  // Khởi tạo filteredColors
-  useEffect(() => {
-    setFilteredColors(colorOptions);
-  }, []);
-
-  // Hàm tìm kiếm màu
-  const handleColorSearch = (searchText) => {
-    setColorSearchText(searchText);
-    
-    if (!searchText) {
-      setFilteredColors(colorOptions);
-      return;
-    }
-
-    const normalizedSearch = searchText.toLowerCase().trim();
-    const filtered = colorOptions.filter(color => 
-      color.keywords.some(keyword => 
-        keyword.toLowerCase().includes(normalizedSearch)
-      )
-    );
-    
-    setFilteredColors(filtered);
   };
 
   return (
@@ -243,56 +190,13 @@ function NavbarComponent({ onSearch, initialFilters }) {
         </AutoComplete>
       </WrapperContent>
 
-      {/* Màu sắc */}
-      <WrapperLabelText>Màu Sắc</WrapperLabelText>
-      <WrapperContent>
-        <Select
-          style={{ width: '100%' }}
-          placeholder="Chọn hoặc nhập tên màu"
-          onChange={handleColorChange}
-          value={filters.color}
-          allowClear
-          showSearch
-          searchValue={colorSearchText}
-          onSearch={handleColorSearch}
-          filterOption={false}
-        >
-          <Select.Option value="">Tất cả</Select.Option>
-          {filteredColors.map(color => (
-            <Select.Option 
-              key={color.value} 
-              value={color.value}
-            >
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '8px',
-                padding: '4px 0'
-              }}>
-                <div
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    borderRadius: '4px',
-                    background: color.color,
-                    border: color.value === 'white' ? '1px solid #d9d9d9' : 'none',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                  }}
-                />
-                <span>{color.label}</span>
-              </div>
-            </Select.Option>
-          ))}
-        </Select>
-      </WrapperContent>
-
       {/* Khoảng giá */}
       <WrapperLabelText>Khoảng Giá</WrapperLabelText>
       <PriceRangeContainer>
         <StyledSlider
           range
           min={0}
-          max={10000000}
+          max={100000000}
           step={100000}
           value={sliderValue}
           onChange={handleSliderChange}
@@ -306,6 +210,7 @@ function NavbarComponent({ onSearch, initialFilters }) {
         </PriceDisplay>
       </PriceRangeContainer>
 
+      {/* Nút xóa bộ lọc */}
       <ButtonContainer>
         <ButtonComponent
           onClick={handleClearFilters}
@@ -321,7 +226,6 @@ function NavbarComponent({ onSearch, initialFilters }) {
             boxSizing: 'border-box'
           }}
         />
-        
       </ButtonContainer>
     </NavbarContainer>
   );

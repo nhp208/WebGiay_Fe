@@ -116,18 +116,8 @@ function AdminUserComponent() {
     },
   });
    // Import dữ liệu vào table
-  const [searchText, setSearchText] = useState("");
-  const [searchedColumn, setSearchedColumn] = useState("");
-  const searchInput = useRef(null);
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
-  };
-  const handleReset = (clearFilters) => {
-    clearFilters();
-    setSearchText("");
-  };
+  const [searchText, setSearchText] = useState('');
+  const [searchedStatus, setSearchedStatus] = useState('');
   const renderAction = () => {
     return (
       <div>
@@ -152,131 +142,37 @@ function AdminUserComponent() {
       </div>
     );
   };
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
-      <div
-        style={{
-          padding: 8,
-        }}
-        onKeyDown={(e) => e.stopPropagation()}
-      >
-        <Input
-          ref={searchInput}
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{
-            marginBottom: 8,
-            display: "block",
-          }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{
-              width: 90,
-            }}
-          >
-            Search
-          </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{
-              width: 90,
-            }}
-          >
-            Reset
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => {
-              confirm({
-                closeDropdown: false,
-              });
-              setSearchText(selectedKeys[0]);
-              setSearchedColumn(dataIndex);
-            }}
-          >
-            Filter
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => {
-              close();
-            }}
-          >
-            close
-          </Button>
-        </Space>
-      </div>
-    ),
-    filterIcon: (filtered) => (
-      <SearchOutlined
-        style={{
-          color: filtered ? "#1677ff" : undefined,
-        }}
-      />
-    ),
-    onFilter: (value, record) =>
-      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-    onFilterDropdownOpenChange: (visible) => {
-      if (visible) {
-        setTimeout(() => searchInput.current?.select(), 100);
-      }
-    },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{
-            backgroundColor: "#ffc069",
-            padding: 0,
-          }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text ? text.toString() : ""}
-        />
-      ) : (
-        text
-      ),
-  });
-  // const formatCurrency = (amount) => {
-  //   return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "Đ";
-  // };
   const dataUser = Users?.data?.map((user) => {
     return { ...user, key: user._id };
   });
   console.log(dataUser)
+  const [searchName, setSearchName] = useState('');
+  const [searchEmail, setSearchEmail] = useState('');
+  const [searchPhone, setSearchPhone] = useState('');
   const columns = [
     {
       title: "Tên người dùng",
       dataIndex: "name",
-      sorter: (a, b) => a.name.length - b.name.length,
-      ...getColumnSearchProps("name"),
+      filteredValue: [searchName],
+      onFilter: (value, record) => {
+        return String(record.name).toLowerCase().includes(value.toLowerCase())
+      }
     },
     {
       title: "Email",
       dataIndex: "email",
-      ...getColumnSearchProps("email"),
+      filteredValue: [searchEmail],
+      onFilter: (value, record) => {
+        return String(record.email).toLowerCase().includes(value.toLowerCase())
+      }
     },
     {
       title: "Số điện thoại",
       dataIndex: "phone",
-      ...getColumnSearchProps("phone"),
+      filteredValue: [searchPhone],
+      onFilter: (value, record) => {
+        return String(record.phone).toLowerCase().includes(value.toLowerCase())
+      }
     },
     {
       title: 'Avatar',
@@ -493,6 +389,38 @@ function AdminUserComponent() {
           <PlusCircleFilled style={{ fontSize: "60px" }} />
         </Button>
       </div>
+      <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+        <Input.Search
+          placeholder="Tìm kiếm theo tên..."
+          onSearch={(value) => {
+            setSearchName(value)
+          }}
+          onChange={(e) => {
+            setSearchName(e.target.value)
+          }}
+          style={{ width: '20%' }}
+        />
+        <Input.Search
+          placeholder="Tìm kiếm theo email..."
+          onSearch={(value) => {
+            setSearchEmail(value)
+          }}
+          onChange={(e) => {
+            setSearchEmail(e.target.value)
+          }}
+          style={{ width: '20%' }}
+        />
+        <Input.Search
+          placeholder="Tìm kiếm theo số điện thoại..."
+          onSearch={(value) => {
+            setSearchPhone(value)
+          }}
+          onChange={(e) => {
+            setSearchPhone(e.target.value)
+          }}
+          style={{ width: '20%' }}
+        />
+      </div>
       <div style={{ marginTop: "10px" }}>
         <TableComponent
           columns={columns}
@@ -500,13 +428,9 @@ function AdminUserComponent() {
           handleDeleteMany={handleDeleteManyUsers}
           selectionType={"checkbox"}
           pagination={{ pageSize: 4 }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (event) => {
-                setRowSelected(record._id);
-              }, // click row
-            };
-          }}
+          onRow={(record, rowIndex) => ({
+            onClick: () => setRowSelected(record._id)
+          })}
         />
       </div>
      <ModalComponent

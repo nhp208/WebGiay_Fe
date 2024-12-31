@@ -49,31 +49,40 @@ const { Title, Text } = Typography;
 
 function OrderPage() {
   const user = useSelector((state) => state.user);
-  const order = useSelector((state) => state.order);
-  const [cart, setCart] = useState(order);
-  // console.log('cart',cart)
+  // console.log("user", user);
+  const orders = useSelector((state) => state.order.orders);
+  console.log("orders", orders);
+  const userOrder = orders?.find(order => order.userId === user?.id);
+  console.log("userOrder", userOrder);
+  const [cart, setCart] = useState(userOrder || {
+    userId: user?.id,
+    orderItems: [],
+    itemsPrice: 0,
+    shippingPrice: 0,
+    taxPrice: 0,
+    totalPrice: 0,
+    totalDiscounted: 0
+  });
+
   useEffect(() => {
-    setCart((prevCart) => ({
-      ...prevCart,
-      user: user?.id,
-    }));
-  }, [user, order]);
+    if (user && userOrder) {
+      setCart(userOrder);
+    }
+  }, [user, userOrder]);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    setCart(order);
-  }, [order]);
-
   const onQuantityChange = (value, record) => {
     dispatch(
       setAmountProduct({
+        userId: user.id,
         product: record.product,
         sku: record.sku,
         quantity: value,
       })
     );
+    
     const updatedOrderItems = cart.orderItems.map((item) =>
       item.product === record.product ? { ...item, amount: value } : item
     );
@@ -84,7 +93,7 @@ function OrderPage() {
   useEffect(() => {
     const fetchSkuData = async () => {
       const data = {};
-      for (let item of order.orderItems) {
+      for (let item of cart.orderItems) {
         console.log('item',item)
         const res = await SkuService.getSKUById(item.sku);
         data[item.sku] = res;
@@ -92,7 +101,7 @@ function OrderPage() {
       setSkuData(data);
     };
     fetchSkuData();
-  }, [order.orderItems]);
+  }, [cart.orderItems]);
 
   const columns = [
     {
@@ -181,7 +190,12 @@ function OrderPage() {
   ];
 
   const handleRemoveItem = (productId, sku) => {
-    dispatch(removeOrderProduct({ product: productId, sku }));
+    dispatch(removeOrderProduct({ 
+      userId: user.id,
+      product: productId, 
+      sku 
+    }));
+    
     const updatedOrderItems = cart.orderItems.filter(
       (item) => item.product !== productId && item.sku !== sku
     );
@@ -237,18 +251,16 @@ function OrderPage() {
 
   const [totalPrice, setTotalPrice] = useState(0);
   useEffect(() => {
-    const calculateTotalPrice = () => {
-      return priceProduct + shippingPrice + taxPrice - totalDiscounted;
-    };
-    setTotalPrice(calculateTotalPrice());
-    setCart({
-      ...cart,
+    const newTotalPrice = priceProduct + shippingPrice + taxPrice - totalDiscounted;
+    setTotalPrice(newTotalPrice);
+    setCart(prevCart => ({
+      ...prevCart,
       itemsPrice: priceProduct,
       shippingPrice,
       taxPrice,
-      totalPrice,
+      totalPrice: newTotalPrice,
       totalDiscounted,
-    });
+    }));
   }, [priceProduct, shippingPrice, taxPrice, totalDiscounted]);
   // xử lý logic đặt hàng
   const [visibleShippingAddressDrawer, setVisibleShippingAddressDrawer] =
@@ -365,15 +377,25 @@ function OrderPage() {
 
   const handlePlaceOrder = async () => {
     try {
-       await OrderService.createOrder(cart);
-      message.success("Đặt hàng thành công");
-      dispatch(removeAllOrder());
+      await OrderService.createOrder({
+        ...cart,
+        user: user.id
+      });
       navigate('/MyOrders');
+      message.success("Đặt hàng thành công");
+      dispatch(removeAllOrder({ userId: user.id }));
     } catch (error) {
       message.error("Lỗi khi tạo đơn hàng");
       console.error("Lỗi khi tạo đơn hàng:", error);
     }
   };
+
+  useEffect(() => {
+    if (!user) {
+      message.warning('Vui lòng đăng nhập để xem giỏ hàng');
+      navigate('/sign-in');
+    }
+  }, [user, navigate]);
 
   return (
     <>

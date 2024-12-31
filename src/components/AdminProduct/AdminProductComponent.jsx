@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { WrapperformCreate, WrapperHeader, WrapperUploadFile } from "./style";
+import { WrapperformCreate, WrapperHeader, WrapperUploadFile, WrapperImagePreview } from "./style";
 import { Button, Form, Input, Select, Space } from "antd";
 import {
   DeleteOutlined,
@@ -135,6 +135,8 @@ function AdminProductComponent() {
     setTypeProduct("");
     setSelectedVariations([]);
     formCreate.resetFields();
+    setSelectedRowKeys([]);
+    setRowSelected('');
   }, [formCreate]);
   useEffect(() => {
     if (isSuccess && data?.status === "OK") {
@@ -146,17 +148,97 @@ function AdminProductComponent() {
   }, [isSuccess, isError, data?.status, handleCancel]);
   // Import dữ liệu vào table
   const [searchText, setSearchText] = useState("");
-  const [searchedColumn, setSearchedColumn] = useState("");
-  const searchInput = useRef(null);
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
+  const [typeFilter, setTypeFilter] = useState("");
+  const [brandFilter, setBrandFilter] = useState("");
+
+  // Hàm xử lý search
+  const handleSearch = (value) => {
+    setSearchText(value);
   };
-  const handleReset = (clearFilters) => {
-    clearFilters();
-    setSearchText("");
+
+  // Hàm xử lý filter theo loại sản phẩm
+  const handleTypeFilter = (value) => {
+    setTypeFilter(value);
   };
+
+  // Hàm xử lý filter theo thương hiệu
+  const handleBrandFilter = (value) => {
+    setBrandFilter(value);
+  };
+
+  // Lọc sản phẩm dựa trên search và filter
+  const filteredProducts = products?.data?.filter(product => {
+    const matchSearch = product.name.toLowerCase().includes(searchText.toLowerCase());
+    const matchType = !typeFilter || product.type === typeFilter;
+    const matchBrand = !brandFilter || product.brandName === brandFilter;
+    return matchSearch && matchType && matchBrand;
+  });
+
+  // Định nghĩa columns mới với width cố định
+  const columns = [
+    {
+      title: "Tên sản phẩm",
+      dataIndex: "name",
+      key: "name",
+      width: 200,
+      fixed: true,
+      ellipsis: true,
+      sorter: (a, b) => a.name.localeCompare(b.name),
+    },
+    {
+      title: "Loại sản phẩm",
+      dataIndex: "type",
+      key: "type",
+      width: 150,
+      fixed: true,
+      ellipsis: true,
+    },
+    {
+      title: "Thương hiệu",
+      dataIndex: "brandName",
+      key: "brandName",
+      width: 150,
+      fixed: true,
+      ellipsis: true,
+    },
+    {
+      title: "Số lượt bán",
+      dataIndex: "NumberProductsSold",
+      key: "NumberProductsSold",
+      width: 150,
+      fixed: true,
+      ellipsis: true,
+      sorter: (a, b) => a.NumberProductsSold - b.NumberProductsSold,
+    },
+    {
+      title: "Giảm giá(%)",
+      dataIndex: "discount",
+      key: "discount",
+      width: 130,
+      fixed: true,
+      ellipsis: true,
+      sorter: (a, b) => a.discount - b.discount,
+    },
+    {
+      title: "Giá",
+      dataIndex: "price",
+      key: "price",
+      width: 120,
+      fixed: true,
+      ellipsis: true,
+      render: (text) => formatCurrency(text),
+      sorter: (a, b) => a.price - b.price,
+    },
+    {
+      title: "Thao tác",
+      key: "action",
+      width: 140,
+      fixed: true,
+      ellipsis: true,
+      render: (_, record) => renderAction(record),
+    },
+  ];
+
   const renderAction = (record) => {
     return (
       <div>
@@ -198,196 +280,23 @@ function AdminProductComponent() {
       </div>
     );
   };
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
-      <div
-        style={{
-          padding: 8,
-        }}
-        onKeyDown={(e) => e.stopPropagation()}
-      >
-        <Input
-          ref={searchInput}
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{
-            marginBottom: 8,
-            display: "block",
-          }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{
-              width: 90,
-            }}
-          >
-            Search
-          </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{
-              width: 90,
-            }}
-          >
-            Reset
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => {
-              confirm({
-                closeDropdown: false,
-              });
-              setSearchText(selectedKeys[0]);
-              setSearchedColumn(dataIndex);
-            }}
-          >
-            Filter
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => {
-              close();
-            }}
-          >
-            close
-          </Button>
-        </Space>
-      </div>
-    ),
-    filterIcon: (filtered) => (
-      <SearchOutlined
-        style={{
-          color: filtered ? "#1677ff" : undefined,
-        }}
-      />
-    ),
-    onFilter: (value, record) =>
-      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-    onFilterDropdownOpenChange: (visible) => {
-      if (visible) {
-        setTimeout(() => searchInput.current?.select(), 100);
-      }
-    },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{
-            backgroundColor: "#ffc069",
-            padding: 0,
-          }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text ? text.toString() : ""}
-        />
-      ) : (
-        text
-      ),
-  });
   const formatCurrency = (amount) => {
     return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "Đ";
   };
   const dataProduct = products?.data?.map((product) => {
     return { ...product, key: product._id };
   });
-  const columns = [
-    {
-      title: "Tên Sản Phẩm",
-      dataIndex: "name",
-      sorter: (a, b) => a.name.length - b.name.length,
-      ...getColumnSearchProps("name"),
-    },
-    {
-      title: "Loại Sản Phẩm",
-      dataIndex: "type",
-      ...getColumnSearchProps("type"),
+  const [typeProduct, setTypeProduct] = useState("");
+  const fetchAllTypeProduct = async () => {
+    const res = await ProductService.getAllTypeProduct();
+    return res.data;
+  };
 
-    },
-    {
-      title: "Thương Hiệu",
-      dataIndex: "brandName",
-    },
-    {
-      title: "Mô tả",
-      dataIndex: "description",
-    },
-    {
-      title: "Số lượt bán",
-      dataIndex: "NumberProductsSold",
-    },
-    {
-      title: "Giảm giá(%)",
-      dataIndex: "discount",
-    },
-    // {
-    //   title: 'Image',
-    //   dataIndex: <image src={'image'}/>,
-    // },
-    //   {
-    //     title: 'Biến Thể',
-    //     dataIndex: 'variations',
-    //     key: 'variations',
-    //     render: (variations) => {
-    //       console.log('variations',variations)
-    //       if (variations.length===0) {
-    //           return 'N/A'; // Hiển thị "N/A" nếu không có variations hoặc options
-    //       }
+  const typeProducts = useQuery({
+    queryKey: ["typeProducts"],
+    queryFn: fetchAllTypeProduct,
+  });
 
-    //       return (
-    //           <div>
-    //               <strong>{variations.type}</strong>:&nbsp;
-    //               {variations.options.map((option, index) => (
-    //                   <span key={index}>{option.value}{index < variations.options.length - 1 ? ', ' : ''}</span>
-    //               ))}
-    //           </div>
-    //       );
-    //     },
-    //  },
-    {
-      title: "Giá",
-      dataIndex: "price",
-      render: (text) => formatCurrency(text), // Định dạng giá tại đây
-      sorter: (a, b) => a.price - b.price,
-      filters: [
-        { text: "Dưới 500.000Đ", value: "under500" },
-        { text: "Từ 500..000Đ đến 1.000.000Đ", value: "500to1000" },
-        { text: "Trên 1.000.000Đ", value: "over1000" },
-      ],
-      onFilter: (value, record) => {
-        switch (value) {
-          case "under500":
-            return record.price < 500000;
-          case "500to1000":
-            return record.price >= 500000 && record.price <= 1000000;
-          case "over1000":
-            return record.price > 1000000;
-          default:
-            return true;
-        }
-      },
-    },
-    {
-      title: "Thao tác",
-      dataIndex: "action",
-      render: (_, record) => renderAction(record),
-    },
-  ];
   //Update
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [rowSelected, setRowSelected] = useState("");
@@ -531,7 +440,7 @@ function AdminProductComponent() {
   //     message.success('Xóa sản phẩm thành công')
   //     handleCancelDelete();
   //   }else if(isErrorDeleted){
-  //     message.error('Xóa sản phẩm thất b���i')
+  //     message.error('Xóa sản phẩm thất bại')
   //   }
   // })
   const mutationDelete = useMutationHooks((data) => {
@@ -578,12 +487,8 @@ function AdminProductComponent() {
         },
       }
     );
-    if (isSuccessDeletedMany && dataDeletedMany?.status === "OK") {
-      message.success("Xóa sản phẩm thành công");
-      handleCancelDelete();
-    } else if (isErrorDeletedMany) {
-      message.error("Xóa sản phẩm thất bại");
-    }
+    setSelectedRowKeys([]); // Reset selected rows sau khi xóa
+    setRowSelected('');
   };
   const {
     data: dataDeletedMany,
@@ -631,17 +536,6 @@ function AdminProductComponent() {
   // };
 
   //Component-Type
-  const [typeProduct, setTypeProduct] = useState("");
-  const fetchAllTypeProduct = async () => {
-    const res = await ProductService.getAllTypeProduct();
-    // setTypeProduct(res.data);
-    return res.data;
-  };
-  const typeProducts = useQuery({
-    queryKey: ["typeProducts"],
-    queryFn: fetchAllTypeProduct,
-  });
-
   const handleChangeType = (value) => {
     setTypeProduct(value);
     if (value !== "add-type") {
@@ -669,7 +563,7 @@ function AdminProductComponent() {
     const result = [];
     const firstOption = options[0]; // Lấy tùy chọn đầu tiên
 
-    // Ki���m tra xem firstOption có phải là mảng không
+    // Kiểm tra xem firstOption có phải là mảng không
     if (!Array.isArray(firstOption)) {
       throw new Error("Each option in `options` should be an array");
     }
@@ -726,6 +620,41 @@ function AdminProductComponent() {
   // }, [rowSelected]);
   //Giao Dien
 
+  // Thêm hàm lấy danh sách thương hiệu unique
+  const getBrandList = () => {
+    const brands = products?.data?.map(product => product.brandName) || [];
+    return [...new Set(brands)];
+  };
+
+  // Thêm state để quản lý các row được chọn
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
+  // Thêm hàm xử lý khi row được chọn
+  const onSelectChange = (newSelectedRowKeys) => {
+    console.log('selectedRowKeys changed: ', newSelectedRowKeys);
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  // Cấu hình rowSelection
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+    selections: [
+      TableComponent.SELECTION_ALL,
+      TableComponent.SELECTION_INVERT,
+      TableComponent.SELECTION_NONE,
+    ],
+  };
+
+  useEffect(() => {
+    if (isSuccessDeletedMany && dataDeletedMany?.status === "OK") {
+      message.success("Xóa sản phẩm thành công");
+      handleCancelDelete();
+    } else if (isErrorDeletedMany) {
+      message.error("Xóa sản phẩm thất bại");
+    }
+  }, [isSuccessDeletedMany, isErrorDeletedMany, dataDeletedMany?.status]);
+
   return (
     <LoadingComponent isLoading={isLoadingProducts}>
       <div>
@@ -743,19 +672,80 @@ function AdminProductComponent() {
             <PlusCircleFilled style={{ fontSize: "60px" }} />
           </Button>
         </div>
+        
+        {/* Thanh công cụ với Search, Filter và nút Xóa tất cả */}
+        <Space style={{ marginTop: 16, marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
+          <Space>
+            <Input.Search
+              placeholder="Tìm kiếm theo tên sản phẩm"
+              allowClear
+              onSearch={handleSearch}
+              onChange={(e) => handleSearch(e.target.value)}
+              style={{ width: 300 }}
+            />
+            
+            <Select
+              style={{ width: 200 }}
+              placeholder="Lọc theo loại sản phẩm"
+              allowClear
+              onChange={handleTypeFilter}
+            >
+              {typeProducts?.data?.map((type) => (
+                <Select.Option key={type} value={type}>
+                  {type}
+                </Select.Option>
+              ))}
+            </Select>
+
+            <Select
+              style={{ width: 200 }}
+              placeholder="Lọc theo thương hiệu"
+              allowClear
+              onChange={handleBrandFilter}
+            >
+              {getBrandList().map((brand) => (
+                <Select.Option key={brand} value={brand}>
+                  {brand}
+                </Select.Option>
+              ))}
+            </Select>
+          </Space>
+
+          {/* Nút Xóa tất cả với style mới */}
+          {selectedRowKeys.length > 0 && (
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              style={{
+                fontWeight: '500'
+              }}
+              onClick={() => handleDeleteManyProducts(selectedRowKeys)}
+            >
+              Xóa ({selectedRowKeys.length})
+            </Button>
+          )}
+        </Space>
+
         <div style={{ marginTop: "10px" }}>
           <TableComponent
             columns={columns}
-            data={dataProduct}
+            data={filteredProducts}
             handleDeleteMany={handleDeleteManyProducts}
-            selectionType={"checkbox"}
             pagination={{ pageSize: 10 }}
-            onRow={(record, rowIndex) => {
-              return {
-                onClick: (event) => {
-                  setRowSelected(record._id);
-                },
-              };
+            scroll={{ x: 1000 }}
+            rowKey={(record) => record._id}
+            rowSelection={{
+              type: 'checkbox',
+              selectedRowKeys,
+              onChange: (selectedRowKeys, selectedRows) => {
+                setSelectedRowKeys(selectedRowKeys);
+                if (selectedRows.length === 1) {
+                  setRowSelected(selectedRows[0]._id);
+                }
+              },
+              getCheckboxProps: (record) => ({
+                name: record.name,
+              }),
             }}
           />
         </div>
@@ -827,7 +817,7 @@ function AdminProductComponent() {
                     typeProduct === "add-type"
                       ? "Thêm Loại sản phẩm mới"
                       : stateProduct.type
-                  } //Lỗi: khi chọn thêm sản phẩm mới rồi chọn lại sản phẩm cũ thì vẫn hiện chọn thêm sản phẩm mới
+                  } //Lỗi: khi chọn thêm sản phẩm mới rồi chọn li sản phẩm c thì vẫn hiện chọn thêm sản phẩm mới
                   onChange={handleChangeType}
                   options={rendeOptions(typeProducts)}
                 />
@@ -865,10 +855,12 @@ function AdminProductComponent() {
                   variations={variations}
                   onAddVariation={handleAddVariation}
                   setVariations={setVariations}
-                />
-                <SelectedVariationsList
                   selectedVariations={selectedVariations}
+                  setSelectedVariations={setSelectedVariations}
                 />
+                {/* <SelectedVariationsList
+                  selectedVariations={selectedVariations}
+                /> */}
               </Form.Item>
               <Form.Item
                 label="Giá tiền"
@@ -882,7 +874,7 @@ function AdminProductComponent() {
               >
                 <Input onChange={handleOnChange} name="price" />
               </Form.Item>
-              <Form.Item
+              {/* <Form.Item
                 label="Số hàng trong kho"
                 name="countInStock"
                 rules={[
@@ -893,7 +885,7 @@ function AdminProductComponent() {
                 ]}
               >
                 <Input onChange={handleOnChange} name="countInStock" />
-              </Form.Item>
+              </Form.Item> */}
               <Form.Item
                 label="Giảm giá (%)"
                 name="discount"
@@ -924,7 +916,7 @@ function AdminProductComponent() {
                 rules={[
                   {
                     required: true,
-                    message: "Xin hãy nhập mô tả sản phẩm!",
+                    message: "Xin hãy nhập mô t sản phẩm!",
                   },
                 ]}
               >
@@ -941,19 +933,19 @@ function AdminProductComponent() {
                 ]}
               >
                 <WrapperUploadFile maxCount={1} onChange={handleOnChangeImage}>
-                  <Button icon={<UploadOutlined />}>Select File</Button>
+                  <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
                   {stateProduct?.image && (
-                    <img
-                      src={stateProduct.image}
-                      style={{
-                        marginLeft: "24px",
-                        height: "120px",
-                        width: "120px",
-                        borderRadius: "4%",
-                        objectFit: "cover",
-                      }}
-                      alt="avatar"
-                    />
+                    <WrapperImagePreview>
+                      <img
+                        src={stateProduct.image}
+                        style={{
+                          height: "120px",
+                          width: "120px",
+                          objectFit: "cover",
+                        }}
+                        alt="preview"
+                      />
+                    </WrapperImagePreview>
                   )}
                 </WrapperUploadFile>
               </Form.Item>
